@@ -1,22 +1,68 @@
 import React from 'react';
-import { ethers, Wallet } from "ethers";
-import { Button, Container, Col, Row, Form, ProgressBar} from 'react-bootstrap';
+import { Button, Container,Table, Col, Row, Form, ProgressBar} from 'react-bootstrap';
+import {get_balance, get_accounts} from '../utils/sm_token';
+import config from '../config';
+
 var fs = require('browserify-fs');
 
 class Balance extends React.Component{
-    constructor(props){
+    constructor(props) {
         super(props);
+        this.state = {
+            addresses: []
+        };
+        this.get_balances = this.get_balances.bind(this);
+      }
+    async get_balances(){
+        let self = this;
+        let list = []
+        fs.readFile(config.data_path+'/data.json', 'utf-8', async function(err, data) {
+            for(let item of JSON.parse(data)){
+                let balance = await get_balance(item.address);
+                list.push({
+                    address: item.address,
+                    balance: balance
+                })
+            }
+            console.log(list);
+            await self.setState({addresses: list});
+        });
     }
-    
+    renderTableData() {
+        return this.state.addresses.map((addr, index) => {
+           const { address, balance } = addr //destructuring
+           return (
+              <tr key={address}>
+                 <td>#</td>
+                 <td>{address}</td>
+                 <td>{balance}</td>
+              </tr>
+           )
+        })
+     }
     render() {
-     
+        
         return (
           <Container> 
             <Row>
               <Col>
-              <h1> account balance</h1>
+              <h1> accounts balances</h1>
               </Col>
-              
+            </Row>
+            <Row>
+            <Button onClick={this.get_balances}>get Balance</Button>
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                    <th>#</th>
+                    <th>Address</th>
+                    <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   {this.renderTableData()}
+                </tbody>
+                </Table>
             </Row>
           </Container>
         );
