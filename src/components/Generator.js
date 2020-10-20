@@ -12,7 +12,11 @@ interface Wallet{
 class Generator extends React.Component{
     constructor(props){
         super(props);
-        this.state = {nbr_address:0, current_value:0, loading: false}
+        this.state = {
+          nbr_address:0,
+          current_value:0,
+          loading: false
+        }
         this.handleChange = this.handleChange.bind(this);
         this.generate_addresses = this.generate_addresses.bind(this);
         this.write_data = this.write_data.bind(this);
@@ -20,12 +24,22 @@ class Generator extends React.Component{
     handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
     }
+     wait(ms){
+      var start = new Date().getTime();
+      var end = start;
+      while(end < start + ms) {
+        end = new Date().getTime();
+     }
+   }
     async write_data(){
+      let self = this;
+      self.setState({current_value:1});
+      this.wait(1000);
       let wallets = [];
         let wallet;
         for(let i = 1; i <= this.state.nbr_address; i++){
           wallet =  ethers.Wallet.createRandom();
-          this.setState({current_value: (i*100)/this.state.nbr_address});
+          await self.setState({current_value: (i*100)/this.state.nbr_address});
           console.log(this.state.current_value);
           wallets.push(
             {
@@ -45,17 +59,13 @@ class Generator extends React.Component{
        return wallets;
     }
     async generate_addresses(event){
+        await this.setState({current_value:1});
         event.preventDefault();
-        this.setState({ loading: true });
-        console.log(this.state.loading)
         const data = await this.write_data();
-        this.setState({ loading: false });
     }
     render() {
-        let progressInstance ;
-        if(this.state.current_value > 0){
-          progressInstance = <ProgressBar animated now={this.state.current_value} label={`${this.state.current_value}%`} />;
-        }
+    
+        
         return (
           <Container> 
             <Row>
@@ -77,15 +87,10 @@ class Generator extends React.Component{
               
             </Row>
             <Row>
-            <Col sm="12">
-                {progressInstance}
+              <Col sm="12">
+                <ProgressBar  now={this.state.current_value} label={`${this.state.current_value}%`} />
               </Col>
-            <Col sm="6">
-                {this.state.loading &&
-                  <h3>waiting...</h3>
-                }
-              </Col>
-              </Row>
+            </Row>
           </Container>
         );
       }
