@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Container, Col, Row, Form, ProgressBar} from 'react-bootstrap';
 import config from '../config';
-import {get_balance, get_accounts, send_amount} from '../utils/sm_token';
-
+import { send_amount } from '../utils/sm_token';
+import Loader from 'react-loader-spinner'
 var fs = require('browserify-fs');
 
 
@@ -17,6 +17,7 @@ class Bulk extends React.Component{
     constructor(props){
         super(props);
         this.state = {amount:0}
+        const { loading } = this.state;
         this.handleChange = this.handleChange.bind(this);
         this.send_amount = this.send_amount.bind(this);
     }
@@ -27,9 +28,12 @@ class Bulk extends React.Component{
       let self = this;
       console.log(this.state.amount);
       fs.readFile(config.data_path+'/data.json', 'utf-8', async function(err, data) {
+        self.setState({ loading: true });
         for(let item of JSON.parse(data)){
           let txid = await send_amount(item.address, self.state.amount);
+          console.log(txid);
         }
+        self.setState({ loading: false });
       });
     }
     render() {
@@ -53,6 +57,16 @@ class Bulk extends React.Component{
                 </Form>
               </Col>
               
+            </Row>
+            <Row>
+            <Col sm="4">
+            </Col>
+            <Col sm="4">
+            {this.state.loading &&
+              <Loader type="ThreeDots" color="#00BFFF" height={80} width={80} />
+            }
+            </Col>
+            <Col sm="4"></Col>
             </Row>
           </Container>
         );

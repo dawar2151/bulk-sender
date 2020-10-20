@@ -2,41 +2,39 @@
 import config from "../config";
 import Web3 from 'web3';
 import parse_abi from './abi_utils';
+const Tx = require('ethereumjs-tx').Transaction
 // Instantiate web3
 let web3
-const ethEnabled = () => {
-    if (window.web3) {
-      window.web3 = new Web3(window.web3.currentProvider);
-      window.ethereum.enable();
-      return true;
-    }
-    return false;
-  }
-if(!ethEnabled()) {  
- web3 = new Web3(config.node_api);
-}else{
-    web3 = window.web3;
-}
+web3 = new Web3(config.node_api);
 // Instantiate smart contracts
 let rc20Contract = new web3.eth.Contract(parse_abi(), config.sm_address);
 
 // call smart contract function to save market object
 export async function send_amount(recipient, amount){
     
+    let nonce = await web3.eth.getTransactionCount(config.account_address);
     const data = rc20Contract.methods.transfer(recipient, amount).encodeABI();
+    const privateKey = Buffer.from(config.private_key,'hex');
     var rawTx = {
-        from: window.ethereum.selectedAddress,
-        nonce: '0x00',
+        from: config.account_address,
+        nonce: nonce,
         to: config.sm_address,
-        gas: '0x81B320', // Gas sent with each transaction (default: ~6700000)
-        gasPrice: '0x4A817C800',
+        gas: config.gas, // Gas sent with each transaction (default: ~6700000)
+        gasPrice: config.gasPrice,
         value: '0x0',
-        chainId: 3,
+        chainId: 4,
         data: data
     }
-    const txHash = await web3.eth.sendTransaction(rawTx);
-    console.log(txHash);
-    return txHash;
+    // Initiate an sign transaction
+    let tx = new Tx(rawTx, { chain: 'rinkeby', hardfork: 'istanbul' });
+    tx.sign(privateKey);
+    let serializedTx = tx.serialize();
+    const raw = '0x' + serializedTx.toString('hex')
+    
+    // Broadcast the transaction
+    const receipt = await web3.eth.sendSignedTransaction(raw);
+    console.log(receipt);
+    return receipt;
 }
 
 export async function get_balance(address){
@@ -47,5 +45,5 @@ export async function get_accounts(){
     return await web3.eth.getAccounts();
 }
 export function get_current_account(){
-    return window.ethereum.selectedAddress;
+    return config.account_address;
 }

@@ -19,22 +19,12 @@ class Generator extends React.Component{
         }
         this.handleChange = this.handleChange.bind(this);
         this.generate_addresses = this.generate_addresses.bind(this);
-        this.write_data = this.write_data.bind(this);
     }
     handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
     }
-     wait(ms){
-      var start = new Date().getTime();
-      var end = start;
-      while(end < start + ms) {
-        end = new Date().getTime();
-     }
-   }
-    async write_data(){
+    async generate_addresses(event){
       let self = this;
-      self.setState({current_value:1});
-      this.wait(1000);
       let wallets = [];
         let wallet;
         for(let i = 1; i <= this.state.nbr_address; i++){
@@ -56,12 +46,6 @@ class Generator extends React.Component{
               });
           });
       });
-       return wallets;
-    }
-    async generate_addresses(event){
-        await this.setState({current_value:1});
-        event.preventDefault();
-        const data = await this.write_data();
     }
     render() {
     
