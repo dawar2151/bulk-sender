@@ -1,6 +1,7 @@
 # bulk-sender
 
-This projet send wallets in json file, and send bulk tokens to thoses addresses, it can also used to consult wallet's balance.
+This projet generate wallets in json file, and send bulk tokens to those addresses, it can also used to consult wallet's balance.
+
 ## configuration
 
 In order to skip MetaMask manual validation some parameters are required:
@@ -14,7 +15,7 @@ config.private_key = copy your private key from Metamask it should be related to
 
 ### `yarn`
 
-Install required pakages for the app.
+Install required packages for the app.
 ### `yarn start`
 
 Runs the app in the development mode.<br />

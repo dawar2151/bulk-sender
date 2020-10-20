@@ -29,7 +29,6 @@ class Balance extends React.Component{
             console.log(list);
             await self.setState({addresses: list});
         });
-
     }
     async get_master_balance(){
         let balance = await get_balance(get_current_account());
