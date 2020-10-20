@@ -12,8 +12,7 @@ interface Wallet{
 class Generator extends React.Component{
     constructor(props){
         super(props);
-        this.state = {nbr_address:0, current_value:0}
-        const { loading } = this.state;
+        this.state = {nbr_address:0, current_value:0, loading: false}
         this.handleChange = this.handleChange.bind(this);
         this.generate_addresses = this.generate_addresses.bind(this);
         this.write_data = this.write_data.bind(this);
@@ -24,10 +23,10 @@ class Generator extends React.Component{
     async write_data(){
       let wallets = [];
         let wallet;
-        for(let i = 0; i <= this.state.nbr_address; i++){
+        for(let i = 1; i <= this.state.nbr_address; i++){
           wallet =  ethers.Wallet.createRandom();
-          await this.setState({current_value: (i*100)/this.state.nbr_address});
-          console.log((i*100)/this.state.nbr_address);
+          this.setState({current_value: (i*100)/this.state.nbr_address});
+          console.log(this.state.current_value);
           wallets.push(
             {
               address: wallet.address,
@@ -45,8 +44,10 @@ class Generator extends React.Component{
       });
        return wallets;
     }
-    async generate_addresses(){
+    async generate_addresses(event){
+        event.preventDefault();
         this.setState({ loading: true });
+        console.log(this.state.loading)
         const data = await this.write_data();
         this.setState({ loading: false });
     }
