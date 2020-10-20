@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Container,Table, Col, Row, Form, ProgressBar} from 'react-bootstrap';
-import {get_balance, get_accounts} from '../utils/sm_token';
+import {get_balance, get_current_account} from '../utils/sm_token';
 import config from '../config';
 
 var fs = require('browserify-fs');
@@ -9,9 +9,11 @@ class Balance extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            addresses: []
+            addresses: [],
+            master_balance:''
         };
         this.get_balances = this.get_balances.bind(this);
+        this.get_master_balance = this.get_master_balance.bind(this);
       }
     async get_balances(){
         let self = this;
@@ -27,6 +29,11 @@ class Balance extends React.Component{
             console.log(list);
             await self.setState({addresses: list});
         });
+
+    }
+    async get_master_balance(){
+        let balance = await get_balance(get_current_account());
+        this.setState({master_balance: balance})
     }
     renderTableData() {
         return this.state.addresses.map((addr, index) => {
@@ -41,16 +48,27 @@ class Balance extends React.Component{
         })
      }
     render() {
-        
+        let current_account = get_current_account()
         return (
           <Container> 
             <Row>
-              <Col>
+              <Col md="6">
               <h1> accounts balances</h1>
               </Col>
+              <Col md="6">
+                <h5> current account: {current_account}</h5>
+                <p>balance:{this.state.master_balance} </p>
+              </Col>
+            </Row>
+            <Row style={{margin:20}}>
+                <Col>
+                    <Button onClick={this.get_balances}>get Accounts Balances</Button>
+                </Col>
+                <Col>
+                    <Button onClick={this.get_master_balance}>get Master Balance</Button>
+                </Col>
             </Row>
             <Row>
-            <Button onClick={this.get_balances}>get Balance</Button>
             <Table striped bordered hover>
                 <thead>
                     <tr>

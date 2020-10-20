@@ -46,3 +46,6 @@ export async function get_balance(address){
 export async function get_accounts(){
     return await web3.eth.getAccounts();
 }
+export function get_current_account(){
+    return window.ethereum.selectedAddress;
+}
