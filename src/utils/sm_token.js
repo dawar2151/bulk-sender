@@ -23,11 +23,10 @@ export async function send_amount(recipient, amount){
         gas: config.gas, // Gas sent with each transaction (default: ~6700000)
         gasPrice: config.gasPrice,
         value: '0x0',
-        chainId: 4,
         data: data
     }
     // Initiate an sign transaction
-    let tx = new Tx(rawTx, { chain: 'rinkeby', hardfork: 'istanbul' });
+    let tx = new Tx(rawTx, { chain: 'mainnet', hardfork: 'istanbul' });
     tx.sign(privateKey);
     let serializedTx = tx.serialize();
     const raw = '0x' + serializedTx.toString('hex')
