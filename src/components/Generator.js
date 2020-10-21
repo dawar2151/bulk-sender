@@ -1,7 +1,8 @@
 import React from 'react';
-import { ethers, Wallet } from "ethers";
 import { Button, Container, Col, Row, Form, ProgressBar} from 'react-bootstrap';
 import config from '../config';
+import Loader from 'react-loader-spinner';
+import { generate_wallets } from '../utils/sm_token';
 var fs = require('browserify-fs');
 /*
 interface Wallet{
@@ -14,9 +15,9 @@ class Generator extends React.Component{
         super(props);
         this.state = {
           nbr_address:0,
-          current_value:0,
-          loading: false
+          current_value:0
         }
+        const { loading } = this.state;
         this.handleChange = this.handleChange.bind(this);
         this.generate_addresses = this.generate_addresses.bind(this);
     }
@@ -25,31 +26,18 @@ class Generator extends React.Component{
     }
     async generate_addresses(event){
       let self = this;
-      let wallets = [];
-        let wallet;
-        for(let i = 1; i <= this.state.nbr_address; i++){
-          wallet =  ethers.Wallet.createRandom();
-          await self.setState({current_value: (i*100)/this.state.nbr_address});
-          console.log(this.state.current_value);
-          wallets.push(
-            {
-              address: wallet.address,
-              privateKey: wallet.privateKey
-            }
-          );
-          
-        }
+      self.setState({ loading: true });
+      let wallets =  await generate_wallets(this.state.nbr_address);
         fs.mkdir(config.data_path, function() {
           fs.writeFile(config.data_path+'/data.json', JSON.stringify(wallets), function() {
               fs.readFile(config.data_path+'/data.json', 'utf-8', function(err, data) {
                   console.log(data);
+                  self.setState({ loading: false });
               });
           });
       });
     }
     render() {
-    
-        
         return (
           <Container> 
             <Row>
@@ -63,7 +51,7 @@ class Generator extends React.Component{
                       <Form.Control value={this.state.nbr_address} name="nbr_address" onChange={this.handleChange} placeholder="" />
                     </Col>
                     <Col sm="4">
-                      <Button onClick={this.generate_addresses} variant="primary">Generate</Button>{' '}
+                      <Button onClick={this.generate_addresses} variant="primary">Generate</Button>
                     </Col>
                   </Form.Group>
                 </Form>
@@ -71,9 +59,14 @@ class Generator extends React.Component{
               
             </Row>
             <Row>
-              <Col sm="12">
-                <ProgressBar  now={this.state.current_value} label={`${this.state.current_value}%`} />
-              </Col>
+            <Col sm="4">
+            </Col>
+            <Col sm="4">
+            {this.state.loading &&
+              <Loader type="ThreeDots" color="#00BFFF" height={80} width={80} />
+            }
+            </Col>
+            <Col sm="4"></Col>
             </Row>
           </Container>
         );

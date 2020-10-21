@@ -5,8 +5,6 @@ import { send_amount } from '../utils/sm_token';
 import Loader from 'react-loader-spinner'
 var fs = require('browserify-fs');
 
-
-
 /*
 interface Wallet{
     publicKey: String;

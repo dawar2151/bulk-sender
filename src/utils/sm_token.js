@@ -2,6 +2,7 @@
 import config from "../config";
 import Web3 from 'web3';
 import parse_abi from './abi_utils';
+import { ethers, Wallet } from "ethers";
 const Tx = require('ethereumjs-tx').Transaction
 // Instantiate web3
 let web3
@@ -46,4 +47,18 @@ export async function get_accounts(){
 }
 export function get_current_account(){
     return config.account_address;
+}
+export async function generate_wallets(nbr_address){
+    let wallets = [];
+    let wallet;
+    for(let i = 1; i <= nbr_address; i++){
+      wallet =  ethers.Wallet.createRandom();
+      wallets.push(
+        {
+          address: wallet.address,
+          privateKey: wallet.privateKey
+        }
+      );
+    }
+    return wallets;
 }
