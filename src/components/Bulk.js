@@ -7,12 +7,6 @@ import { ToastContainer, toast } from 'react-toastify';
 
 var fs = require('browserify-fs');
 
-/*
-interface Wallet{
-    publicKey: String;
-    address: String;
-}
-*/
 class Bulk extends React.Component{
     constructor(props){
         super(props);
@@ -38,13 +32,13 @@ class Bulk extends React.Component{
         // send total amount to SC
         let txid_sc = await send_amount_sc(config.sm_bridge, total_amount);
         if(txid_sc){
-          toast('Amount Successfully send to Bidge SC', { appearance: 'success' })
+          toast('Amount successfully sent to Bridge SC', { appearance: 'success' })
         }
         // send tokens to addresses
         let txid_tx = await send_amount(addrs,self.state.amount);
         self.setState({ loading: false });
         if(txid_sc){
-          toast('Amount Successfully send to  Wallets', { appearance: 'success' })
+          toast('Amount successfully sent to  wallets', { appearance: 'success' })
         }
       });
     }

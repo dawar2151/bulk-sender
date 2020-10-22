@@ -3,6 +3,8 @@ import { Button, Container, Col, Row, Form, ProgressBar} from 'react-bootstrap';
 import config from '../config';
 import Loader from 'react-loader-spinner';
 import { generate_wallets } from '../utils/sm_token';
+import { ToastContainer, toast } from 'react-toastify';
+
 var fs = require('browserify-fs');
 class Generator extends React.Component{
     constructor(props){
@@ -27,6 +29,7 @@ class Generator extends React.Component{
               fs.readFile(config.data_path+'/data.json', 'utf-8', function(err, data) {
                   console.log(data);
                   self.setState({ loading: false });
+                  toast('Wallets successfully generated', { appearance: 'success' })
               });
           });
       });

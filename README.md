@@ -2,12 +2,14 @@
 
 This projet generate wallets in json file, and send bulk tokens to those addresses, it can also used to consult wallet's balance.
 
-## configuration
+## Metamask configuration
 
 In order to configureMetaMask:
   - create new network and add your infura mainnet/rinkeny link 
   - connect your account(it will be automatically requested)
 
+## Config.js configuration 
+Add your main and bridge smart contracts addresses
 ```shell
 config.sm_address = smart contracts(ERC20) address
 config.sm_bridge = bridge smart contracts address, make sur you have passed sm_address in sm_bridge constructor
