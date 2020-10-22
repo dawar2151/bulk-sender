@@ -4,17 +4,17 @@ This projet generate wallets in json file, and send bulk tokens to those address
 
 ## configuration
 
-In order to skip MetaMask manual validation some parameters are required:
+In order to configureMetaMask:
+  - create new network and add your infura mainnet/rinkeny link 
+  - connect your account(it will be automatically requested)
 
 ```shell
-config.sm_address: smart contracts(ERC20) address when deployed
-config.account_address: you account address please copy one of your Metamask account
-config.node_api: past here your rinkbey/mainnet link from infura
-config.private_key = copy your private key from Metamask it should be related to (account_address)
+config.sm_address = smart contracts(ERC20) address
+config.sm_bridge = bridge smart contracts address, make sur you have passed sm_address in sm_bridge constructor
+config.data_path = path where wallets will be saved, update not needed;
 ```
 
 ### `yarn`
-
 Install required packages for the app.
 ### `yarn start`
 

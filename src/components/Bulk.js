@@ -1,8 +1,10 @@
 import React from 'react';
 import { Button, Container, Col, Row, Form, ProgressBar} from 'react-bootstrap';
 import config from '../config';
-import { send_amount } from '../utils/sm_token';
-import Loader from 'react-loader-spinner'
+import { send_amount, send_amount_sc } from '../utils/sm_token';
+import Loader from 'react-loader-spinner';
+import { ToastContainer, toast } from 'react-toastify';
+
 var fs = require('browserify-fs');
 
 /*
@@ -24,14 +26,26 @@ class Bulk extends React.Component{
     }
     async send_amount(){
       let self = this;
-      console.log(this.state.amount);
+      // Read all generated addresses
       fs.readFile(config.data_path+'/data.json', 'utf-8', async function(err, data) {
         self.setState({ loading: true });
+        let addrs = [];
         for(let item of JSON.parse(data)){
-          let txid = await send_amount(item.address, self.state.amount);
-          console.log(txid);
+          addrs.push(item.address)
         }
+        // calculate total amount to send to SC
+        let total_amount = (self.state.amount * addrs.length )
+        // send total amount to SC
+        let txid_sc = await send_amount_sc(config.sm_bridge, total_amount);
+        if(txid_sc){
+          toast('Amount Successfully send to Bidge SC', { appearance: 'success' })
+        }
+        // send tokens to addresses
+        let txid_tx = await send_amount(addrs,self.state.amount);
         self.setState({ loading: false });
+        if(txid_sc){
+          toast('Amount Successfully send to  Wallets', { appearance: 'success' })
+        }
       });
     }
     render() {
@@ -66,7 +80,10 @@ class Bulk extends React.Component{
             </Col>
             <Col sm="4"></Col>
             </Row>
+            
           </Container>
+                  
+
         );
       }
 }

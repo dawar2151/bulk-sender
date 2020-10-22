@@ -1,10 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { Button, Container, Col, Row, Form, Tab, Tabs} from 'react-bootstrap';
 import Generator from './components/Generator';
 import Bulk from './components/Bulk';
 import Balance from './components/Balance';
+import Download from './components/Download';
+import { ToastContainer, toast } from 'react-toastify';
+
 function App() {
   return (
     <div className="App">
@@ -21,12 +25,15 @@ function App() {
               </Tab>
               <Tab className='tab' eventKey="balance" title="Addresses balance">
                 <Balance />
+              </Tab>
+              <Tab className='tab' eventKey="download" title="Download wallets">
+                <Download />
               </Tab>  
       </Tabs>
       </Col>
        </Row>
      </Container>
-  
+     <ToastContainer />
     </div>
   );
 }

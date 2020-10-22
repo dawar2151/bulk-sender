@@ -4,12 +4,6 @@ import config from '../config';
 import Loader from 'react-loader-spinner';
 import { generate_wallets } from '../utils/sm_token';
 var fs = require('browserify-fs');
-/*
-interface Wallet{
-    publicKey: String;
-    address: String;
-}
-*/
 class Generator extends React.Component{
     constructor(props){
         super(props);
