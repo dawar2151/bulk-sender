@@ -5,7 +5,8 @@ This projet generate wallets in json file, and send bulk tokens to those address
 ## Metamask configuration
 
 In order to configureMetaMask:
-  - create new network and add your infura mainnet/rinkeny link 
+  - create new network and add your infura mainnet/rinkeny link
+  ![Create new network](public/custum_network.png)
   - connect your account(it will be automatically requested)
 
 ## Config.js configuration 

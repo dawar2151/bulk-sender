@@ -53,7 +53,6 @@ class Generator extends React.Component{
                   </Form.Group>
                 </Form>
               </Col>
-              
             </Row>
             <Row>
             <Col sm="4">
