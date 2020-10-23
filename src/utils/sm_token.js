@@ -103,3 +103,16 @@ export async function generate_wallets(nbr_address){
     }
     return wallets;
 }
+export function validate_address(address){
+  if(ethers.utils.isAddress(address)){
+    return true;
+  }
+  return false;
+}
+export function getBigNumber(_amount, _decimals){
+  let decimals = web3.utils.toBN(_decimals);
+  let amount = web3.utils.toBN(_amount);
+  // calculate ERC20 token amount
+  let value = amount.mul(web3.utils.toBN(10).pow(decimals));
+  return value;
+}

@@ -6,7 +6,9 @@ import {send_amount,
         get_decimals,
         get_name,
         get_totalSupply,
-        get_symbol } from '../utils/sm_token';
+        get_symbol,
+        validate_address,
+        getBigNumber } from '../utils/sm_token';
 import Loader from 'react-loader-spinner';
 import { toast } from 'react-toastify';
 import { get_addresses, IsValidJSONString } from '../utils/common';
@@ -32,32 +34,41 @@ class Bulk extends React.Component{
     async handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
         if(event.target.name ==  'token'){
+
           const token = event.target.value;
-          let decimals = await get_decimals(token);
-          let symbol = await get_symbol(token);
-          let name = await get_name(token);
-          let totalSupply = await get_totalSupply(token);
-          this.setState({decimals: decimals});
-          this.setState({symbol: symbol});
-          this.setState({name: name});
-          this.setState({totalSupply: totalSupply});
+          if(validate_address(token)){
+            let decimals = await get_decimals(token);
+            let symbol = await get_symbol(token);
+            let name = await get_name(token);
+            let totalSupply = await get_totalSupply(token);
+            this.setState({decimals: decimals});
+            this.setState({symbol: symbol});
+            this.setState({name: name});
+            this.setState({totalSupply: totalSupply});
+          } else{
+            toast('token not valid', { appearance: 'error' })
+          } 
         }
     }
     async send_amount(){
       let self = this;
       // Read all generated addresses
+      try{
         let wallets = JSON.parse(this.state.json_wallets);
         self.setState({ loading: true });
         let addrs = [];
         let amounts = [];
         let total_amount = 0;
         for(let item in wallets){
-          addrs.push(item)
-          amounts.push(wallets[item]);
+          addrs.push(item);
+          amounts.push(getBigNumber(wallets[item], this.state.decimals));
+          console.log(getBigNumber(wallets[item], this.state.decimals).toString());
           total_amount += wallets[item];
         }
+        let bn_total_amount = getBigNumber(total_amount, this.state.decimals);
         // send total amount to SC
-        let txid_sc = await send_amount_sc(this.state.token, config.sm_bridge, total_amount);
+        console.log(bn_total_amount.toString());
+        let txid_sc = await send_amount_sc(this.state.token, config.sm_bridge, bn_total_amount);
         if(txid_sc){
           toast('Amount successfully sent to Bridge SC', { appearance: 'success' })
         }
@@ -67,7 +78,11 @@ class Bulk extends React.Component{
         if(txid_sc){
           toast('Amount successfully sent to  wallets', { appearance: 'success' })
         }
-    
+      } catch (e) {
+        
+        toast('JSON not valid it should be : {address:amount,...}  ', { appearance: 'success' });
+        return false;
+      }
     }
     render() {
      
@@ -88,9 +103,9 @@ class Bulk extends React.Component{
                     </Col>
                   </Form.Group>
                   <Form.Group as={Row} controlId="wallets.json">
-                      <Form.Label column sm="4">Json Wallets</Form.Label>
+                      <Form.Label column sm="4">Addresses with Balances in</Form.Label>
                       <Col sm="8">
-                      <Form.Control value={this.state.json_wallets} name="json_wallets" onChange={this.handleChange} as="textarea" rows={5} />
+                      <Form.Control value={this.state.json_wallets} name="json_wallets" placeholder='Example: { "0xebA77334af32eA44b53E1b494Ee918c07878DAcE":12,"0x1bA77334af32eA44b53E1b494Ee918c07878DAcE":13}' onChange={this.handleChange} as="textarea" rows={5} />
                       </Col>
                   </Form.Group>
                   {this.state.totalSupply &&
