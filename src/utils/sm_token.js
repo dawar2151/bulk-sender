@@ -118,5 +118,5 @@ export function getBigNumber(_amount, _decimals){
 }
 export async function parseBalance(_amount){
   let decimals = await get_decimals(localStorage.getItem('token'));
-  return (_amount/(10*10**18));
+  return (_amount/(10**18));
 }
