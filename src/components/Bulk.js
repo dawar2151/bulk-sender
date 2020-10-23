@@ -45,6 +45,7 @@ class Bulk extends React.Component{
             this.setState({symbol: symbol});
             this.setState({name: name});
             this.setState({totalSupply: totalSupply});
+            localStorage.setItem('token', token);
           } else{
             toast('token not valid', { appearance: 'error' })
           } 
@@ -62,12 +63,10 @@ class Bulk extends React.Component{
         for(let item in wallets){
           addrs.push(item);
           amounts.push(getBigNumber(wallets[item], this.state.decimals));
-          console.log(getBigNumber(wallets[item], this.state.decimals).toString());
           total_amount += wallets[item];
         }
         let bn_total_amount = getBigNumber(total_amount, this.state.decimals);
         // send total amount to SC
-        console.log(bn_total_amount.toString());
         let txid_sc = await send_amount_sc(this.state.token, config.sm_bridge, bn_total_amount);
         if(txid_sc){
           toast('Amount successfully sent to Bridge SC', { appearance: 'success' })

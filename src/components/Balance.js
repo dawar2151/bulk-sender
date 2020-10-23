@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Container,Table, Col, Row, Form, ProgressBar} from 'react-bootstrap';
-import {get_balance, get_current_account} from '../utils/sm_token';
+import {get_balance, get_current_account, parseBalance} from '../utils/sm_token';
 import config from '../config';
 import Loader from 'react-loader-spinner'
 var fs = require('browserify-fs');
@@ -23,9 +23,10 @@ class Balance extends React.Component{
             self.setState({ loading: true });
             for(let item of JSON.parse(data)){
                 let balance = await get_balance(item.address);
+                let parsed_balance = await await parseBalance(balance);
                 list.push({
                     address: item.address,
-                    balance: balance
+                    balance: parsed_balance
                 })
             }
             self.setState({ loading: false });
@@ -34,7 +35,8 @@ class Balance extends React.Component{
     }
     async get_master_balance(){
         let balance = await get_balance(get_current_account());
-        this.setState({master_balance: balance})
+        let parsed_balance = await parseBalance(balance);
+        this.setState({master_balance: parsed_balance})
     }
     renderTableData() {
         return this.state.addresses.map((addr, index) => {

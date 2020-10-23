@@ -58,7 +58,7 @@ export async function send_amount_sc(token, recipient, amount){
 // get balance address's token balance
 export async function get_balance(address){
   // to update
-    rc20Contract = new web3.eth.Contract(parse_abi(), '0xcfad14fb38212397c9ea6e228a4a81dc288df24b'); 
+    rc20Contract = new web3.eth.Contract(parse_abi(), localStorage.getItem('token')); 
     let balance  = await rc20Contract.methods.balanceOf(address).call();
     return balance;
 }
@@ -115,4 +115,8 @@ export function getBigNumber(_amount, _decimals){
   // calculate ERC20 token amount
   let value = amount.mul(web3.utils.toBN(10).pow(decimals));
   return value;
+}
+export async function parseBalance(_amount){
+  let decimals = await get_decimals(localStorage.getItem('token'));
+  return (_amount/(10*10**18));
 }

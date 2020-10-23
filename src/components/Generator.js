@@ -3,8 +3,8 @@ import { Button, Container, Col, Row, Form, Card} from 'react-bootstrap';
 import config from '../config';
 import Loader from 'react-loader-spinner';
 import { generate_wallets } from '../utils/sm_token';
-import { ToastContainer, toast } from 'react-toastify';
-import { get_addresses, IsValidJSONString } from '../utils/common';
+import {  toast } from 'react-toastify';
+import { get_addresses } from '../utils/common';
 var fs = require('browserify-fs');
 class Generator extends React.Component{
     constructor(props){
