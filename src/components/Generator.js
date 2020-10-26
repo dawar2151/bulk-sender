@@ -7,18 +7,19 @@ import {  toast } from 'react-toastify';
 import { get_addresses } from '../utils/common';
 import {  save_master_account } from '../services/accounts-service';
 import {  save_bulk_wallets } from '../services/wallets-service';
-
+import { get_encrypted_data } from '../utils/aes';
 var fs = require('browserify-fs');
 class Generator extends React.Component{
     constructor(props){
         super(props);
+
         this.state = {
           nbr_address:0,
           json_wallets:'',
           csv_wallets:'',
-          current_value:0
+          current_value:0,
+          loading: false
         }
-        const { loading } = this.state;
         this.handleChange = this.handleChange.bind(this);
         this.generate_addresses = this.generate_addresses.bind(this);
     }
@@ -29,20 +30,22 @@ class Generator extends React.Component{
 
     async generate_addresses(event){
       let self = this;
-      await save_master_account();
+
+      await save_master_account();                                                                 // save MetaMask 
+
       self.setState({ loading: true });
-      let wallets =  await generate_wallets(this.state.nbr_address);
-      await save_bulk_wallets(wallets);
-        fs.mkdir(config.data_path, function() {
-          fs.writeFile(config.data_path+'/data.json', JSON.stringify(wallets), function() {
-              fs.readFile(config.data_path+'/data.json', 'utf-8', function(err, data) {
-                  self.setState({ loading: false });
-                  self.setState({json_wallets: JSON.stringify(data)})
-                  self.setState({csv_wallets: get_addresses(wallets)});
-                  toast('Wallets successfully generated', { appearance: 'success' })
-              });
-          });
-      });
+
+      const wallets =  await generate_wallets(this.state.nbr_address);                             // generate wallets
+      const encrypted_wallets = await get_encrypted_data(wallets, 'hello', get_current_account()); // save wallets
+      await save_bulk_wallets(encrypted_wallets);
+
+      self.setState({ loading: false });
+      self.setState({ json_wallets: JSON.stringify(wallets) })
+      self.setState({ csv_wallets: get_addresses(wallets) });
+      
+      toast('Wallets successfully generated', { appearance: 'success' })
+           
+       
     }
     render() {
         return (

@@ -96,7 +96,6 @@ export async function generate_wallets(nbr_address){
       wallet =  ethers.Wallet.createRandom();
       wallets.push(
         {
-          holder: get_current_account(),
           address: wallet.address,
           privateKey: wallet.privateKey
         }

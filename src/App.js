@@ -6,7 +6,6 @@ import { Button, Container, Col, Row, Form, Tab, Tabs} from 'react-bootstrap';
 import Generator from './components/Generator';
 import Bulk from './components/Bulk';
 import Balance from './components/Balance';
-import Download from './components/Download';
 import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
@@ -25,10 +24,7 @@ function App() {
               </Tab>
               <Tab className='tab' eventKey="balance" title="Addresses balance">
                 <Balance />
-              </Tab>
-              <Tab className='tab' eventKey="download" title="Download wallets">
-                <Download />
-              </Tab>  
+              </Tab> 
       </Tabs>
       </Col>
        </Row>

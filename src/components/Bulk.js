@@ -13,8 +13,7 @@ import {send_amount,
 import Loader from 'react-loader-spinner';
 import { toast } from 'react-toastify';
 import { save_token } from '../services/tokens-service';
-
-var fs = require('browserify-fs');
+import { get_wallets } from '../services/wallets-service';
 
 class Bulk extends React.Component{
     constructor(props){
@@ -28,13 +27,21 @@ class Bulk extends React.Component{
           decimals:0,
           json_wallets:'',
         }
-        const { loading } = this.state;
         this.handleChange = this.handleChange.bind(this);
         this.send_amount = this.send_amount.bind(this);
     }
+    async componentDidMount() {
+      let data = await get_wallets({holder: get_current_account()});
+      let json_wallets = {};
+      for(let item of data){
+        json_wallets[item.address] = 0;
+      }
+      this.setState({json_wallets: JSON.stringify(json_wallets)});
+
+    }
     async handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
-        if(event.target.name ==  'token'){
+        if(event.target.name ===  'token'){
 
           const token = event.target.value;
           if(validate_address(token)){
@@ -83,7 +90,7 @@ class Bulk extends React.Component{
         // send tokens to addresses
         let txid_tx = await send_amount(this.state.token, addrs,amounts);
         self.setState({ loading: false });
-        if(txid_sc){
+        if(txid_tx){
           toast('Amount successfully sent to  wallets', { appearance: 'success' })
         }
       } catch (e) {

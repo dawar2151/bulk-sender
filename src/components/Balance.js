@@ -1,42 +1,45 @@
 import React from 'react';
-import { Button, Container,Table, Col, Row, Form, ProgressBar} from 'react-bootstrap';
+import { Button, Container,Table, Col, Row} from 'react-bootstrap';
 import {get_balance, get_current_account, parseBalance} from '../utils/sm_token';
 import config from '../config';
 import Loader from 'react-loader-spinner'
-import {save_account} from '../services/accounts-service';
-var fs = require('browserify-fs');
+
+import {get_wallets} from '../services/wallets-service';
 
 class Balance extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
             addresses: [],
-            master_balance:''
+            master_balance:'',
+            loading: false
         };
-        const { loading } = this.state;
         this.get_balances = this.get_balances.bind(this);
         this.get_master_balance = this.get_master_balance.bind(this);
       }
-    // save account
+    /**
+     * Get holder's wallets balances
+     */
     async get_balances(){
         let self = this;
         let list = []
-        fs.readFile(config.data_path+'/data.json', 'utf-8', async function(err, data) {
-            self.setState({ loading: true });
-            for(let item of JSON.parse(data)){
-                let balance = await get_balance(item.address);
-                let parsed_balance = await await parseBalance(balance);
-                list.push({
-                    address: item.address,
-                    balance: parsed_balance
-                })
-            }
-            self.setState({ loading: false });
-            await self.setState({addresses: list});
-        });
+        self.setState({ loading: true });
+        let data = await get_wallets({holder: get_current_account()})
+        for(let item of data){
+            let balance = await get_balance(item.address);
+            let parsed_balance = await await parseBalance(balance);
+            list.push({
+                address: item.address,
+                balance: parsed_balance
+            })
+        }
+        self.setState({ loading: false });
+        await self.setState({addresses: list});
     }
+    /**
+     * return connected MetaMask balance
+    */
     async get_master_balance(){
-        await this.save_account();
         let balance = await get_balance(get_current_account());
         let parsed_balance = await parseBalance(balance);
         this.setState({master_balance: parsed_balance})
