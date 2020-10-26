@@ -3,10 +3,10 @@ import config from "../config";
 import Web3 from 'web3';
 import {parse_bridge_abi, parse_abi} from './abi_utils';
 import { ethers } from "ethers";
-const Tx = require('ethereumjs-tx').Transaction
+
 // Instantiate web3
 let web3
-const ethEnabled = () => {
+const ethEnabled = async() => {
     if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
       window.ethereum.enable();
@@ -96,6 +96,7 @@ export async function generate_wallets(nbr_address){
       wallet =  ethers.Wallet.createRandom();
       wallets.push(
         {
+          holder: get_current_account(),
           address: wallet.address,
           privateKey: wallet.privateKey
         }
@@ -118,5 +119,5 @@ export function getBigNumber(_amount, _decimals){
 }
 export async function parseBalance(_amount){
   let decimals = await get_decimals(localStorage.getItem('token'));
-  return (_amount/(10**18));
+  return (_amount/(10**decimals))+','+_amount%(10**decimals);
 }

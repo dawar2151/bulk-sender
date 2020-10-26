@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Container, Col, Row, Form, Badge} from 'react-bootstrap';
+import { Button, Container, Col, Row, Form, Badge, Card} from 'react-bootstrap';
 import config from '../config';
 import {send_amount,
         send_amount_sc, 
@@ -8,10 +8,11 @@ import {send_amount,
         get_totalSupply,
         get_symbol,
         validate_address,
-        getBigNumber } from '../utils/sm_token';
+        getBigNumber, 
+        get_current_account} from '../utils/sm_token';
 import Loader from 'react-loader-spinner';
 import { toast } from 'react-toastify';
-import { get_addresses, IsValidJSONString } from '../utils/common';
+import { save_token } from '../services/tokens-service';
 
 var fs = require('browserify-fs');
 
@@ -46,6 +47,14 @@ class Bulk extends React.Component{
             this.setState({name: name});
             this.setState({totalSupply: totalSupply});
             localStorage.setItem('token', token);
+            await save_token({
+              holder: get_current_account(),
+              address: token,
+              name: name,
+              decimals: decimals,
+              totalSupply: totalSupply,
+              symbol: symbol
+            });
           } else{
             toast('token not valid', { appearance: 'error' })
           } 
@@ -128,9 +137,24 @@ class Bulk extends React.Component{
                     </Col>
                   </Row>
                   }
+                  {this.state.totalSupply &&
+                    <Row>
+                      <Col>
+                    <Card>
+                      <Card.Body>
+                        <Card.Title>Network Speed up</Card.Title>
+                        <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
+                        <Card.Text>
+                          To speed up the transactions you can rise the (Gas Price) in Metamask confirm transactions.
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                    </Col>
+                    </Row> 
+                  }
                   <Row>
                   <Col>
-                      <Button onClick={this.send_amount} variant="primary">Send tokens</Button>{' '}
+                      <Button className="btn-generate" onClick={this.send_amount} variant="primary">Send tokens</Button>{' '}
                     </Col>
                   </Row>
                 </Form>

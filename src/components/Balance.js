@@ -3,6 +3,7 @@ import { Button, Container,Table, Col, Row, Form, ProgressBar} from 'react-boots
 import {get_balance, get_current_account, parseBalance} from '../utils/sm_token';
 import config from '../config';
 import Loader from 'react-loader-spinner'
+import {save_account} from '../services/accounts-service';
 var fs = require('browserify-fs');
 
 class Balance extends React.Component{
@@ -16,6 +17,7 @@ class Balance extends React.Component{
         this.get_balances = this.get_balances.bind(this);
         this.get_master_balance = this.get_master_balance.bind(this);
       }
+    // save account
     async get_balances(){
         let self = this;
         let list = []
@@ -34,6 +36,7 @@ class Balance extends React.Component{
         });
     }
     async get_master_balance(){
+        await this.save_account();
         let balance = await get_balance(get_current_account());
         let parsed_balance = await parseBalance(balance);
         this.setState({master_balance: parsed_balance})
