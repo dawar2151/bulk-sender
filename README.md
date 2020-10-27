@@ -12,8 +12,9 @@ In order to configureMetaMask:
 ## Config.js configuration 
 Add your main and bridge smart contracts addresses
 ```shell
-config.sm_bridge = bridge smart contracts address, make sur you have passed sm_address in sm_bridge constructor
-config.data_path = path where wallets will be saved, update not needed;
+config.sm_bridge = bridge smart contracts address, make sur you have passed sm_address in sm_bridge constructor.
+config.data_path = path where wallets will be saved, update not needed.
+config.api= add your bridge backend api url.
 ```
 
 ### `yarn`
