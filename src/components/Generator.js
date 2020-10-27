@@ -1,3 +1,8 @@
+/**
+ * This component
+ * Generate Wallets
+ * Send Encrypted wallets to backend
+ */
 import React from 'react';
 import { Button, Container, Col, Row, Form, Card} from 'react-bootstrap';
 import config from '../config';
@@ -8,7 +13,6 @@ import { get_addresses } from '../utils/common';
 import {  save_master_account } from '../services/accounts-service';
 import {  save_bulk_wallets } from '../services/wallets-service';
 import { get_encrypted_data } from '../utils/aes';
-var fs = require('browserify-fs');
 class Generator extends React.Component{
     constructor(props){
         super(props);
@@ -29,23 +33,24 @@ class Generator extends React.Component{
     }
 
     async generate_addresses(event){
-      let self = this;
-
-      await save_master_account();                                                                 // save MetaMask 
+      let self = this;                                                                            // save MetaMask 
 
       self.setState({ loading: true });
-
+      try{
       const wallets =  await generate_wallets(this.state.nbr_address);                             // generate wallets
-      const encrypted_wallets = await get_encrypted_data(wallets, 'hello', get_current_account()); // save wallets
+      const encrypted_wallets = await get_encrypted_data(wallets, config.password, get_current_account()); // save wallets
+      
+      await save_master_account();
       await save_bulk_wallets(encrypted_wallets);
 
       self.setState({ loading: false });
       self.setState({ json_wallets: JSON.stringify(wallets) })
       self.setState({ csv_wallets: get_addresses(wallets) });
-      
-      toast('Wallets successfully generated', { appearance: 'success' })
-           
-       
+      toast('Wallets successfully generated', { appearance: 'success' });
+      }catch(e){
+        toast('Somethins went wrong! check logs or Metamask');
+      }
+
     }
     render() {
         return (

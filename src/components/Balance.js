@@ -1,8 +1,23 @@
+/**
+ * This Component:
+ * Load current connected account balance
+ * Load saved wallets balance
+ */
 import React from 'react';
-import { Button, Container,Table, Col, Row} from 'react-bootstrap';
-import {get_balance, get_current_account, parseBalance} from '../utils/sm_token';
-import config from '../config';
-import Loader from 'react-loader-spinner'
+import { 
+  Button,
+  Container,
+  Table, 
+  Col, 
+  Row
+} from 'react-bootstrap';
+import { 
+  get_balance, 
+  get_current_account, 
+  parseBalance
+} from '../utils/sm_token';
+
+import Loader from 'react-loader-spinner';
 
 import {get_wallets} from '../services/wallets-service';
 

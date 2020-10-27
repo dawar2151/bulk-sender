@@ -1,20 +1,30 @@
+/**
+ * This Component
+ * Load stored wallets
+ * Save entered token
+ * Send total amounts to Bridge smart contract
+ * Send bulk tokens to loaded wallets from bridge smart contract 
+ */
 import React from 'react';
 import { Button, Container, Col, Row, Form, Badge, Card} from 'react-bootstrap';
 import config from '../config';
-import {send_amount,
-        send_amount_sc, 
-        get_decimals,
-        get_name,
-        get_totalSupply,
-        get_symbol,
-        validate_address,
-        getBigNumber, 
-        get_current_account} from '../utils/sm_token';
+import {
+  send_amount,
+  send_amount_sc, 
+  get_decimals,
+  get_name,
+  get_totalSupply,
+  get_symbol,
+  validate_address,
+  getBigNumber, 
+  get_current_account
+} from '../utils/sm_token';
 import Loader from 'react-loader-spinner';
 import { toast } from 'react-toastify';
 import { save_token } from '../services/tokens-service';
 import { get_wallets } from '../services/wallets-service';
-
+import { save_bulk_bridges } from '../services/bridges-service';
+import { parse_transactions } from '../utils/common';
 class Bulk extends React.Component{
     constructor(props){
         super(props);
@@ -30,6 +40,9 @@ class Bulk extends React.Component{
         this.handleChange = this.handleChange.bind(this);
         this.send_amount = this.send_amount.bind(this);
     }
+    /**
+     * Load On init Component saved wallets for connected MetaMask account
+     */
     async componentDidMount() {
       let data = await get_wallets({holder: get_current_account()});
       let json_wallets = {};
@@ -39,22 +52,31 @@ class Bulk extends React.Component{
       this.setState({json_wallets: JSON.stringify(json_wallets)});
 
     }
+    /**
+     * Set component state
+     * @param {*} event 
+     */
     async handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
         if(event.target.name ===  'token'){
 
           const token = event.target.value;
           if(validate_address(token)){
-            let decimals = await get_decimals(token);
-            let symbol = await get_symbol(token);
-            let name = await get_name(token);
-            let totalSupply = await get_totalSupply(token);
-            this.setState({decimals: decimals});
-            this.setState({symbol: symbol});
-            this.setState({name: name});
-            this.setState({totalSupply: totalSupply});
-            localStorage.setItem('token', token);
-            await save_token({
+
+            let decimals = await get_decimals(token);             // get token's decimals
+            let symbol = await get_symbol(token);                 // get token's symbol
+            let name = await get_name(token);                     // get token's name
+            let totalSupply = await get_totalSupply(token);       // get token's totalSupply
+            
+            this.setState({                                       // update token state
+              decimals: decimals, 
+              symbol: symbol, 
+              name: name, 
+              totalSupply: totalSupply
+            });
+                                                                  
+            localStorage.setItem('token', token);                 // save token state
+            await save_token({                                    // save token in database
               holder: get_current_account(),
               address: token,
               name: name,
@@ -63,39 +85,61 @@ class Bulk extends React.Component{
               symbol: symbol
             });
           } else{
-            toast('token not valid', { appearance: 'error' })
+            toast('Invalid Token!', { appearance: 'error' })
           } 
         }
     }
+    /**
+     * parse wallets and amounts to send
+     * send total amount to Bridge smart contract
+     * send amounts from Bridge smart contract to wallets
+     * save all transactions logs in database
+     */
     async send_amount(){
       let self = this;
-      // Read all generated addresses
+      let addresses = [];
+      let amounts = [];
+      let total_amount = 0;
+      let wallets
       try{
-        let wallets = JSON.parse(this.state.json_wallets);
+         wallets = JSON.parse(this.state.json_wallets);                                               // Read loaded wallets and amounts
+      } catch (e) {
+        console.log(e);
+        toast('JSON not valid it should be : {address:amount,...}');
+      };
+      try{
         self.setState({ loading: true });
-        let addrs = [];
-        let amounts = [];
-        let total_amount = 0;
-        for(let item in wallets){
-          addrs.push(item);
-          amounts.push(getBigNumber(wallets[item], this.state.decimals));
-          total_amount += wallets[item];
+        for (let [address, value] of Object.entries(wallets)) {                                         // Parse addresses and amounts to two deparated arrays
+          addresses.push(address);
+          amounts.push(getBigNumber(value, this.state.decimals));
+          total_amount += value;
         }
+        console.log(addresses);
         let bn_total_amount = getBigNumber(total_amount, this.state.decimals);
         // send total amount to SC
-        let txid_sc = await send_amount_sc(this.state.token, config.sm_bridge, bn_total_amount);
-        if(txid_sc){
+        let txid_bridge = await send_amount_sc(this.state.token, config.sm_bridge, bn_total_amount);    // send total tokens to bridge SC
+        if(txid_bridge){
           toast('Amount successfully sent to Bridge SC', { appearance: 'success' })
         }
-        // send tokens to addresses
-        let txid_tx = await send_amount(this.state.token, addrs,amounts);
+        
+        let txid = await send_amount(this.state.token, addresses,amounts);                              // send tokens from SC to wallets
         self.setState({ loading: false });
-        if(txid_tx){
+        if(txid){
           toast('Amount successfully sent to  wallets', { appearance: 'success' })
         }
-      } catch (e) {
         
-        toast('JSON not valid it should be : {address:amount,...}  ', { appearance: 'success' });
+        const birdges = await parse_transactions( txid_bridge,                                          // parse sent tokens transactions to database models 
+                                                txid, 
+                                                bn_total_amount, 
+                                                amounts, 
+                                                addresses 
+                                                );
+        console.log(birdges);
+        await save_bulk_bridges(birdges);
+
+      } catch (e) {
+        console.log(e);
+        toast('Something went wrong !');
         return false;
       }
     }
@@ -125,8 +169,7 @@ class Bulk extends React.Component{
                   </Form.Group>
                   {this.state.totalSupply &&
                   <Row>
-                    <Col>
-                       
+                    <Col>    
                       <h6>
                       Name: <Badge variant="secondary">{this.state.name}</Badge>
                       </h6>

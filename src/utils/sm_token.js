@@ -14,10 +14,8 @@ const ethEnabled = async() => {
     }
     return false;
   }
-if(!ethEnabled()) {  
- web3 = new Web3(config.node_api);
-}else{
-    web3 = window.web3;
+if(ethEnabled()) {  
+  web3 = window.web3;
 }
 // Instantiate smart contracts
 let rc20Bridge = new web3.eth.Contract(parse_bridge_abi(), config.sm_bridge);
@@ -119,4 +117,8 @@ export function getBigNumber(_amount, _decimals){
 export async function parseBalance(_amount){
   let decimals = await get_decimals(localStorage.getItem('token'));
   return (_amount/(10**decimals))+','+_amount%(10**decimals);
+}
+export async function parseFloatBalance(_amount){
+  let decimals = await get_decimals(localStorage.getItem('token'));
+  return parseFloat(_amount/(10**decimals))+'.'+_amount%(10**decimals);
 }

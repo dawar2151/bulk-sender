@@ -1,6 +1,8 @@
 import config from '../config';
 import { get_current_account } from '../utils/sm_token';
-
+/**
+ * save connected Metamask account address
+ */
 export async function save_master_account() {
   const body = {address:get_current_account() }
   const requestOptions = {
@@ -10,5 +12,5 @@ export async function save_master_account() {
   };
   const response = await fetch(config.api+"/accounts", requestOptions);
   const data = await response.json();
-  console.log(data);
+  return data;
 }
