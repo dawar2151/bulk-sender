@@ -43,13 +43,13 @@ class Bulk extends React.Component{
     /**
      * Load On init Component saved wallets for connected MetaMask account
      */
-    async componentDidMount() {
-      let data = await get_wallets({holder: get_current_account()});
+    async loadWallets() {
+      let data = await get_wallets({holder: get_current_account()});//load wallets from database
       let json_wallets = {};
       for(let item of data){
         json_wallets[item.address] = 0;
       }
-      this.setState({json_wallets: JSON.stringify(json_wallets)});
+      this.setState({json_wallets: JSON.stringify(json_wallets)});  // set couple (wallets, values) input 
 
     }
     /**
@@ -57,8 +57,8 @@ class Bulk extends React.Component{
      * @param {*} event 
      */
     async handleChange(event) {
-        this.setState({[event.target.name]: event.target.value});
-        if(event.target.name ===  'token'){
+        this.setState({[event.target.name]: event.target.value});   
+        if(event.target.name ===  'token'){                       // save token if new
 
           const token = event.target.value;
           if(validate_address(token)){
@@ -84,6 +84,7 @@ class Bulk extends React.Component{
               totalSupply: totalSupply,
               symbol: symbol
             });
+            await this.loadWallets()
           } else{
             toast('Invalid Token!', { appearance: 'error' })
           } 
@@ -114,9 +115,8 @@ class Bulk extends React.Component{
           amounts.push(getBigNumber(value, this.state.decimals));
           total_amount += value;
         }
-        console.log(addresses);
+
         let bn_total_amount = getBigNumber(total_amount, this.state.decimals);
-        // send total amount to SC
         let txid_bridge = await send_amount_sc(this.state.token, config.sm_bridge, bn_total_amount);    // send total tokens to bridge SC
         if(txid_bridge){
           toast('Amount successfully sent to Bridge SC', { appearance: 'success' })
@@ -134,7 +134,6 @@ class Bulk extends React.Component{
                                                 amounts, 
                                                 addresses 
                                                 );
-        console.log(birdges);
         await save_bulk_bridges(birdges);
 
       } catch (e) {

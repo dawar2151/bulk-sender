@@ -33,11 +33,11 @@ class Generator extends React.Component{
     }
 
     async generate_addresses(event){
-      let self = this;                                                                            // save MetaMask 
+      let self = this;                                                                             
 
       self.setState({ loading: true });
       try{
-      const wallets =  await generate_wallets(this.state.nbr_address);                             // generate wallets
+      const wallets =  await generate_wallets(this.state.nbr_address);                                     // generate wallets
       const encrypted_wallets = await get_encrypted_data(wallets, config.password, get_current_account()); // save wallets
       
       await save_master_account();
@@ -48,6 +48,7 @@ class Generator extends React.Component{
       self.setState({ csv_wallets: get_addresses(wallets) });
       toast('Wallets successfully generated', { appearance: 'success' });
       }catch(e){
+        console.log(e);
         toast('Somethins went wrong! check logs or Metamask');
       }
 

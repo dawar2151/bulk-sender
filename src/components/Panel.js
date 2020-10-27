@@ -35,11 +35,9 @@ class Panel extends React.Component{
             alert('install Metamsk')
         }
     }
-    async componentDidMount() {
-       await this.connectWeb3();
-    }
     async getAccess(){
         await this.connectWeb3();
+        this.setState({enabled: true})
     }
    
     render() {
@@ -65,7 +63,7 @@ class Panel extends React.Component{
                 </Col>
             }
             {!this.state.enabled &&
-                <Button onClick={this.getAccess}>Access refused</Button>
+                <Button onClick={this.getAccess}>Connect Metamask</Button>
             }   
             </Row>
           </Container>

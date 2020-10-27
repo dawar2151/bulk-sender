@@ -11,6 +11,5 @@ export async function save_master_account() {
     body: JSON.stringify(body)
   };
   const response = await fetch(config.api+"/accounts", requestOptions);
-  const data = await response.json();
-  return data;
+  return response;
 }

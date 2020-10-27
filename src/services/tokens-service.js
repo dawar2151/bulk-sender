@@ -12,7 +12,7 @@ export async function save_token(token) {
     body: JSON.stringify(token)
   };
   const response = await fetch(config.api+"/tokens", requestOptions);
-  const data = await response.json();
-  return data;
+
+  return response;
 
 }
