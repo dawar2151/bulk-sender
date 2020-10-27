@@ -65,7 +65,7 @@ class Panel extends React.Component{
                 </Col>
             }
             {!this.state.enabled &&
-                <Button onClick={this.getAccess}>access refused</Button>
+                <Button onClick={this.getAccess}>Access refused</Button>
             }   
             </Row>
           </Container>
