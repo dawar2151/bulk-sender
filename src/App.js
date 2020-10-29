@@ -6,27 +6,27 @@ import {
 } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
 import  Panel from "./components/Panel";
-import Web3 from 'web3';
+
   function App() {
-  return (
-    
-    <div className="App">
-     <Container>
-       <Panel />
-     </Container>
-     <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-    </div>
-  );
+    return (
+      
+      <div className="App">
+        <Container>
+          <Panel />
+        </Container>
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </div>
+    );
 }
 
 export default App;

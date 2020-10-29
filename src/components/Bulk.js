@@ -36,6 +36,8 @@ class Bulk extends React.Component{
           token:'',
           decimals:0,
           json_wallets:'',
+          typeAmounts:'',
+          amount:0
         }
         this.handleChange = this.handleChange.bind(this);
         this.send_amount = this.send_amount.bind(this);
@@ -43,11 +45,11 @@ class Bulk extends React.Component{
     /**
      * Load On init Component saved wallets for connected MetaMask account
      */
-    async loadWallets() {
+    async loadWallets(amount) {
       let data = await get_wallets({holder: get_current_account()});//load wallets from database
       let json_wallets = {};
       for(let item of data){
-        json_wallets[item.address] = 0;
+        json_wallets[item.address] = amount;
       }
       this.setState({json_wallets: JSON.stringify(json_wallets)});  // set couple (wallets, values) input 
 
@@ -57,7 +59,16 @@ class Bulk extends React.Component{
      * @param {*} event 
      */
     async handleChange(event) {
-        this.setState({[event.target.name]: event.target.value});   
+        this.setState({[event.target.name]: event.target.value});
+        if(event.target.name === "typeAmounts"){
+          if(event.target.value === "common"){
+            this.loadWallets(parseInt(config.common_amounts));
+          }
+          
+        }
+        if(event.target.name === "amount"){
+           this.loadWallets(parseInt(event.target.value));
+        }   
         if(event.target.name ===  'token'){                       // save token if new
 
           const token = event.target.value;
@@ -84,7 +95,6 @@ class Bulk extends React.Component{
               totalSupply: totalSupply,
               symbol: symbol
             });
-            await this.loadWallets()
           } else{
             toast('Invalid Token!', { appearance: 'error' })
           } 
@@ -159,14 +169,33 @@ class Bulk extends React.Component{
                     <Col sm="2">
                       <Form.Control value={this.state.decimals} name="decimals" onChange={this.handleChange} placeholder="decimals" />
                     </Col>
-                  </Form.Group>
-                  <Form.Group as={Row} controlId="wallets.json">
+                </Form.Group>
+                <Form.Group as={Row}>
+                    <Form.Label column sm="4">
+                      Choose amount type
+                    </Form.Label>
+                    <div key="inline-radio" className="radioAmount" onChange={this.handleChange} sm="8">
+                      <Form.Check inline label="Custom" value="custom" name="typeAmounts" type="radio" id="inline-radio-1" />
+                      <Form.Check inline label="Common" value="common" name="typeAmounts" type="radio" id="inline-radio-2" />
+                    </div>
+                </Form.Group>
+                {this.state.typeAmounts === 'custom' &&
+                <Form.Group as={Row} controlId="formNbraddresses">
+                    <Form.Label column sm="4">
+                      Amount
+                    </Form.Label>
+                    <Col sm="8">
+                      <Form.Control value={this.state.amount} name="amount" onChange={this.handleChange} placeholder="" />
+                    </Col>
+                </Form.Group> 
+                }   
+                <Form.Group as={Row} controlId="wallets.json">
                       <Form.Label column sm="4">Addresses with Balances in</Form.Label>
                       <Col sm="8">
                       <Form.Control value={this.state.json_wallets} name="json_wallets" placeholder='Example: { "0xebA77334af32eA44b53E1b494Ee918c07878DAcE":12,"0x1bA77334af32eA44b53E1b494Ee918c07878DAcE":13}' onChange={this.handleChange} as="textarea" rows={5} />
                       </Col>
-                  </Form.Group>
-                  {this.state.totalSupply &&
+                </Form.Group>
+                {this.state.totalSupply !== 0 &&
                   <Row>
                     <Col>    
                       <h6>
@@ -186,7 +215,7 @@ class Bulk extends React.Component{
                     </Col>
                   </Row>
                   }
-                  {this.state.totalSupply &&
+                  {this.state.totalSupply !== 0 &&
                     <Row>
                       <Col>
                     <Card>
