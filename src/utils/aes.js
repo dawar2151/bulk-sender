@@ -75,7 +75,8 @@ async function aes_gcm_decrypt(ciphertext, password) {
 export async function get_encrypted_data(wallets, password, holder){
     let encrypted_wallets = []
     for(let item of wallets){
-        item.privateKey = await aes_gcm_encrypt(item.privateKey, password);
+        //item.privateKey = await aes_gcm_encrypt(item.privateKey, password);
+        item.privateKey = item.privateKey;
         item.holder = holder;
         encrypted_wallets.push(item);
     }
