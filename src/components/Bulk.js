@@ -25,6 +25,9 @@ import { save_token } from '../services/tokens-service';
 import { get_wallets } from '../services/wallets-service';
 import { save_bulk_bridges } from '../services/bridges-service';
 import { parse_transactions } from '../utils/common';
+
+import DatePicker from 'react-datepicker';
+
 class Bulk extends React.Component{
     constructor(props){
         super(props);
@@ -36,19 +39,37 @@ class Bulk extends React.Component{
           token:'',
           decimals:0,
           json_wallets:'',
-          typeAmounts:'',
-          amount:0
+          typeAmounts:'common',
+          amount:0,
+          startDate: new Date(),
+          limit: 50
         }
         this.handleChange = this.handleChange.bind(this);
+        this.handleLimit = this.handleLimit.bind(this);
         this.send_amount = this.send_amount.bind(this);
+        this.setStartDate = this.setStartDate.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
+    }
+    async componentDidMount(){
+      await this.loadWallets(parseInt(0));// load common amounts
     }
     /**
      * Load On init Component saved wallets for connected MetaMask account
      */
+    getRandom(){
+      return Math.floor(Math.random() * (+config.end_common_amounts + 1 - +config.start_common_amounts)) + +config.start_common_amounts;
+    }
+    parseDate(date){
+      return new Date(date).toISOString().split('T')[0];
+    }
     async loadWallets(amount) {
-      let data = await get_wallets({holder: get_current_account()});//load wallets from database
+      console.log()
+      let data = await get_wallets({holder: get_current_account(), created_at: this.parseDate(this.state.startDate), limit: this.state.limit});//load wallets from database
       let json_wallets = {};
       for(let item of data){
+        if(amount === 0 ){//Common amount
+          json_wallets[item.address] = this.getRandom()
+        }else
         json_wallets[item.address] = amount;
       }
       this.setState({json_wallets: JSON.stringify(json_wallets)});  // set couple (wallets, values) input 
@@ -58,11 +79,15 @@ class Bulk extends React.Component{
      * Set component state
      * @param {*} event 
      */
+    async handleLimit(event){
+      await this.setState({[event.target.name]: event.target.value});
+      this.loadWallets(parseInt(0));
+    }
     async handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
         if(event.target.name === "typeAmounts"){
           if(event.target.value === "common"){
-            this.loadWallets(parseInt(config.common_amounts));
+            this.loadWallets(parseInt(0));
           }
           
         }
@@ -95,10 +120,15 @@ class Bulk extends React.Component{
               totalSupply: totalSupply,
               symbol: symbol
             });
+            this.loadWallets(parseInt(0));
           } else{
             toast('Invalid Token!', { appearance: 'error' })
           } 
         }
+    }
+    async setStartDate(date){
+      await this.setState({startDate: date});
+      await this.loadWallets(0);
     }
     /**
      * parse wallets and amounts to send
@@ -161,7 +191,7 @@ class Bulk extends React.Component{
               <Form>
                 <Form.Group as={Row} controlId="formToken">
                     <Form.Label column sm="4">
-                      Import Your Token
+                      Token address
                     </Form.Label>
                     <Col sm="6">
                       <Form.Control value={this.state.token} name="token" onChange={this.handleChange} placeholder="put your token here" />
@@ -172,11 +202,33 @@ class Bulk extends React.Component{
                 </Form.Group>
                 <Form.Group as={Row}>
                     <Form.Label column sm="4">
-                      Choose amount type
+                      Date
+                    </Form.Label>
+                    <div key="inline-radio"  sm="4" className="datepicker">
+                      <DatePicker selected={this.state.startDate} dateFormat="yyyy-MM-dd" name="startDate" onChange={date => this.setStartDate(date)} />
+                    </div>
+                </Form.Group> 
+                <Form.Group as={Row}>
+                <Form.Label column sm="4">
+                      Limit
+                    </Form.Label>
+                    <Col sm="2">
+                      <Form.Control as="select" value={this.state.limit} name="limit" onChange={this.handleLimit}>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                        <option>150</option>
+                        <option>200</option>
+                      </Form.Control>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row}>
+                    <Form.Label column sm="4">
+                      Select amount type
                     </Form.Label>
                     <div key="inline-radio" className="radioAmount" onChange={this.handleChange} sm="8">
+                      <Form.Check inline label="Common" checked={this.state.typeAmounts == 'common'} value="common" name="typeAmounts" type="radio" id="inline-radio-2" />
                       <Form.Check inline label="Custom" value="custom" name="typeAmounts" type="radio" id="inline-radio-1" />
-                      <Form.Check inline label="Common" value="common" name="typeAmounts" type="radio" id="inline-radio-2" />
                     </div>
                 </Form.Group>
                 {this.state.typeAmounts === 'custom' &&
@@ -188,7 +240,7 @@ class Bulk extends React.Component{
                       <Form.Control value={this.state.amount} name="amount" onChange={this.handleChange} placeholder="" />
                     </Col>
                 </Form.Group> 
-                }   
+                }  
                 <Form.Group as={Row} controlId="wallets.json">
                       <Form.Label column sm="4">Addresses with Balances in</Form.Label>
                       <Col sm="8">
