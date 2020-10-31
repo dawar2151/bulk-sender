@@ -2,7 +2,7 @@ import { get_current_account, parseFloatBalance } from "./sm_token";
 import config from "../config";
 
 /**
- * Get Ethereum addresses from wallets
+ * @dev Get Ethereum addresses from wallets
  * @param {*} wallets 
  */
 export  function get_addresses(wallets){
@@ -13,7 +13,7 @@ export  function get_addresses(wallets){
     return addresses;
 }
 /**
- * Verify id json is valid
+ * @dev Verify id json is valid
  * @param {*} str : string
  */
 export  function IsValidJSONString(str) {
@@ -25,7 +25,7 @@ export  function IsValidJSONString(str) {
     return true;
 }
 /**
- * Parse ethereum transactions into database object
+ * @dev Parse ethereum transactions into database object
  * @param {*} txid_bridge : Id transaction sent from connected Metamask account to bridge
  * @param {*} txid : Id transaction sent from bridge to wallets
  * @param {*} bn_total_amount: total amount sent to Bridge smart contract
@@ -52,4 +52,10 @@ export async function parse_transactions(txid_bridge, txid, bn_total_amount, amo
         })
     }
     return bridges;
+}
+/**
+ * @dev generate random number beetween two numbers
+ */
+export function  get_random(){
+    return Math.floor(Math.random() * (+config.end_common_amounts + 1 - +config.start_common_amounts)) + +config.start_common_amounts;
 }
