@@ -4,13 +4,25 @@ import {
   Col,
   Tab,
   Tabs,
-  Row,
-  Button
+  Row
 } from 'react-bootstrap';
 import Web3 from 'web3';
 import Generator from './Generator';
 import Bulk from './Bulk';
 import Balance from './Balance';
+import {
+    BrowserRouter as Router,
+    Link,
+    Switch,
+  } from 'react-router-dom';
+
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
 
 class Panel extends React.Component{
     constructor(props) {
@@ -39,29 +51,28 @@ class Panel extends React.Component{
         await this.connectWeb3();
         this.setState({enabled: true})
     }
-   
+    
     render() {
+        
         return (
-          <Container> 
-            <Row>
-                <h2>Bulk Sender system</h2>
-            </Row>
-            <Row>
+          <Container>
+              
             {this.state.enabled &&
-                <Col>
-                    <Tabs defaultActiveKey="generator" id="uncontrolled-tab-example">
-                        <Tab className='tab' eventKey="generator" title="Address generator">
-                            <Generator />
-                        </Tab>
-                        <Tab className='tab' eventKey="bulk" title="Bulk send tokens">
-                            <Bulk />
-                        </Tab>
-                        <Tab className='tab' eventKey="balance" title="Addresses balance">
-                            <Balance />
-                        </Tab> 
-                    </Tabs>
-                </Col>
+            <AppBar position="static" style={{marginBottom: 20}}>
+                <Toolbar>
+                <IconButton edge="start"  color="inherit" aria-label="menu">
+                    <MenuIcon />
+                </IconButton>
+                <Typography variant="h6">
+                Bulk Sender system
+                </Typography>
+                <Link  to="/generator" style={{marginLeft: 10}} color="inherit">Generator</Link>
+                <Link  to="/bulk" style={{marginLeft: 10}} color="inherit">Bulk</Link>
+                </Toolbar>
+            </AppBar>
+              
             }
+            <Row>
             {!this.state.enabled &&
                 <Button onClick={this.getAccess}>Connect Metamask</Button>
             }   
@@ -70,4 +81,15 @@ class Panel extends React.Component{
         );
       }
 }
+const useStyles = makeStyles((theme) => ({
+    root: {
+      flexGrow: 1,
+    },
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+    title: {
+      flexGrow: 1,
+    },
+}));    
 export default Panel;
