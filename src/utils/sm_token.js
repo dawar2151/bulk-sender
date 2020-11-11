@@ -15,8 +15,8 @@ export async function send_amount(token ,recipient, amounts){
       from: window.ethereum.selectedAddress,
       nonce: '0x00',
       to: config.sm_bridge,
-      gas: '0x81B320', // Gas sent with each transaction (default: ~6700000)
-      gasPrice: '0x4A817C800',
+      gas: config.gas, // Gas sent with each transaction (default: ~6700000)
+      gasPrice: config.gasPrice,
       value: '0x0',
       data: data
   }
@@ -31,8 +31,8 @@ export async function send_amount_sc(token, recipient, amount){
         from: window.ethereum.selectedAddress,
         nonce: '0x00',
         to: token,
-        gas: '0x81B320', // Gas sent with each transaction (default: ~6700000)
-        gasPrice: '0x4A817C800',
+        gas: config.gas, // Gas sent with each transaction (default: ~6700000)
+        gasPrice: config.gasPrice,
         value: '0x0',
         data: data
     }
